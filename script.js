@@ -91,3 +91,41 @@ function revealMessageWithIframes(text) {
 
     typeWriter();
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const formContainer = document.getElementById("messageFormContainer");
+    const showFormButton = document.getElementById("showFormButton");
+
+    // Mostrar formulario con animación
+    showFormButton.addEventListener("click", function () {
+        formContainer.classList.toggle("show");
+        if (formContainer.classList.contains("show")) {
+            showFormButton.style.display = "none"; // Ocultar el botón cuando aparece el formulario
+        }
+    });
+
+    // Manejo del formulario de Discord
+    document.getElementById("discordForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Evita recargar la página
+
+        const name = document.getElementById("name").value;
+        const message = document.getElementById("message").value;
+
+        const webhookURL = "https://discord.com/api/webhooks/1343320465241800724/28RcFJ0l3zeaappWsHyn38n1C24Tkl_6hTn5np83-VeT2A41N02ZWrDroJaBCBePqDsM";
+
+        fetch(webhookURL, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                content: `📩 **Nuevo mensaje:**\n👤 De: ${name}\n💬 Mensaje: ${message}`
+            })
+        }).then(response => {
+            if (response.ok) {
+                alert("Mensaje enviado a Discord ✅");
+                document.getElementById("discordForm").reset(); // Limpiar el formulario
+            } else {
+                alert("Hubo un error al enviar el mensaje ❌");
+            }
+        }).catch(err => console.error("Error enviando mensaje:", err));
+    });
+});
