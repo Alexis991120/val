@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rompecabezas especial ❤️</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #ff9a9e, #fad0c4);
+            text-align: center;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 630px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            padding: 14px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #ff6b6b;
+            height: 60px;
+        }
+        select, button {
+            margin: 5px;
+            padding: 10px;
+            font-size: 16px;
+        }
+        .buttons button {
+            background-color: #ff6b6b;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            margin: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        .buttons button:hover {
+            background-color: #e84118;
+        }
+        #puzzle-container {
+            display: grid;
+            margin: auto;
+            gap: 2px;
+            max-width: 90vw;
+            justify-content: center;
+        }
+        .puzzle-piece {
+            border: 1px solid #000;
+            background-size: cover;
+            cursor: grab;
+            aspect-ratio: 1 / 1;
+        }
+        @media (max-width: 600px) {
+            select, button {
+                font-size: 14px;
+            }
+        }
+        #message {
+            margin-top: 20px;
+            font-size: 20px;
+            font-weight: bold;
+            color: green;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Rompecabezas especial ❤️</h1>
+    <div id="controls">
+        <select id="presetImages">
+            <option value="puzzle/puzzle1.jpg">Rompecabezas 1❤️</option>
+            <option value="puzzle/puzzle2.jpg">Rompecabezas 2❤️</option>
+            <option value="puzzle/puzzle3.jpg">Rompecabezas 3❤️</option>
+            <option value="puzzle/puzzle4.jpg">Rompecabezas 4❤️</option>
+            <option value="puzzle/puzzle5.jpg">Rompecabezas 5❤️</option>
+            <option value="puzzle/puzzle6.jpg">Rompecabezas 6❤️</option>
+            <option value="puzzle/puzzle7.jpg">Rompecabezas 7❤️</option>
+            <option value="puzzle/puzzle8.jpg">Rompecabezas 8❤️</option>
+            <option value="puzzle/puzzle9.jpg">Rompecabezas 9❤️</option>
+            <option value="puzzle/puzzle10.jpg">Rompecabezas 10❤️</option>
+        </select>
+        <select id="puzzleSize">
+            <option value="3">9 piezas (3x3)</option>
+            <option value="4">16 piezas (4x4)</option>
+            <option value="5">25 piezas (5x5)</option>
+        </select>
+        <button onclick="generatePuzzle()">Crear Rompecabezas</button>
+        <button onclick="window.location.href='https://alexis991120.github.io/val/'">Volver al inicio</button>
+    </div>
+    <div id="puzzle-container"></div>
+    <div id="message">
+        ¡Felicidades! Has completado el rompecabezas.
+        <div class="buttons">
+            <button onclick="window.location.href='https://alexis991120.github.io/val/'">Volver al inicio</button>
+        </div>
+    </div>
+</div>
+    <script>
+        function generatePuzzle() {
+            const gridSize = parseInt(document.getElementById('puzzleSize').value);
+            const selectedImage = document.getElementById('presetImages').value;
+            const container = document.getElementById('puzzle-container');
+            container.innerHTML = '';
+            container.style.gridTemplateColumns = `repeat(${gridSize}, 1fr)`;
+            container.style.width = `min(90vw, ${gridSize * 100}px)`;
+            
+            let pieces = [];
+            for (let row = 0; row < gridSize; row++) {
+                for (let col = 0; col < gridSize; col++) {
+                    let piece = document.createElement('div');
+                    piece.classList.add('puzzle-piece');
+                    piece.style.backgroundImage = `url(${selectedImage})`;
+                    piece.style.backgroundSize = `${gridSize * 100}% ${gridSize * 100}%`;
+                    piece.style.backgroundPosition = `${(-col * 100) / (gridSize - 1)}% ${(-row * 100) / (gridSize - 1)}%`;
+                    piece.draggable = true;
+                    piece.dataset.index = row * gridSize + col;
+                    piece.addEventListener('touchstart', touchStart, { passive: false });
+                    piece.addEventListener('touchmove', touchMove, { passive: false });
+                    piece.addEventListener('touchend', touchEnd);
+                    pieces.push(piece);
+                }
+            }
+            pieces = pieces.sort(() => Math.random() - 0.5);
+            pieces.forEach(piece => container.appendChild(piece));
+        }
+        
+        let draggedPiece = null;
+
+        function touchStart(event) {
+            draggedPiece = event.target;
+        }
+
+        function touchMove(event) {
+            event.preventDefault();
+            let touch = event.touches[0];
+            let element = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (element && element.classList.contains('puzzle-piece') && element !== draggedPiece) {
+                swapPieces(draggedPiece, element);
+                checkCompletion();
+            }
+        }
+
+        function touchEnd() {
+            draggedPiece = null;
+        }
+
+        function swapPieces(piece1, piece2) {
+            let parent = piece1.parentNode;
+            let temp = document.createElement('div');
+            parent.replaceChild(temp, piece1);
+            parent.replaceChild(piece1, piece2);
+            parent.replaceChild(piece2, temp);
+        }
+
+        function checkCompletion() {
+            let pieces = document.querySelectorAll('.puzzle-piece');
+            let correct = Array.from(pieces).every((piece, index) => parseInt(piece.dataset.index) === index);
+            if (correct) {
+                document.getElementById('message').style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>
