@@ -121,7 +121,7 @@ document.addEventListener("DOMContentLoaded", function () {
             })
         }).then(response => {
             if (response.ok) {
-                alert("Mensaje enviado a Discord ✅");
+                alert("Mensaje enviado ❤️");
                 document.getElementById("discordForm").reset(); // Limpiar el formulario
             } else {
                 alert("Hubo un error al enviar el mensaje ❌");
